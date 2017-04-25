@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html>
+<body>
+	<h1 id = "title"></h1>
+	<div style="position:absolute; right: 500px">
+		<p>Health</p>
+		<p id="health"></p>
+	</div>
+	<div style="position:absolute; top:100, left:0">
+		<canvas id="sea" width="600" height="600" style="border:1px solid #000000;"></canvas>
+	</div>
+	<div style="position:absolute; top:100, left:0">
+		<canvas id="echo" width="600" height="600" style="border:1px solid #000000;"></canvas>
+	</div>
+	<div style="position:absolute; top:100, left:0">
+		<canvas id="popE" width="600" height="600" style="border:1px solid #000000;"></canvas>
+	</div>
+	<div style="position:absolute; top:100, left:0">
+		<canvas id="dolph" width="600" height="600" style="border:1px solid #000000;"></canvas>
+	</div>
+	<div style="position:absolute; top:100, left:0">
+		<canvas id="pop" width="600" height="600" style="border:1px solid #000000;"></canvas>
+	</div>
+	<div style="position:absolute; top:100, left:0">
+		<canvas id="map" width="600" height="600" style="border:1px solid #000000;"></canvas>
+	</div>
+	<div style="position:absolute; top:100, left:0">
+		<canvas id="secmap" width="600" height="600" style="border:1px solid #000000;"></canvas>
+	</div>
+	<div style="position:absolute; top:100, left:0">
+		<canvas id="bad" width="600" height="600" style="border:1px solid #000000;"></canvas>
+	</div>
+	
+	
+	
+	<script>
+		document.getElementById("title").innerHTML = "Dolphins!"
+		var bad = document.getElementById("bad");
+		var bctx = bad.getContext("2d")
+		var pop = document.getElementById("pop");
+		var pctx = pop.getContext("2d")
+		var pope = document.getElementById("popE");
+		var pectx = pope.getContext("2d")
+		var ec = document.getElementById("echo");
+		var ectx = ec.getContext("2d");
+		var can = document.getElementById("sea");
+		var dolphin = document.getElementById("dolph");
+		var m = document.getElementById("map");
+		var mctx = m.getContext("2d");
+		var sec = document.getElementById("secmap");
+		var sctx = sec.getContext("2d");
+		var dctx = dolphin.getContext("2d");
+		var seactx = can.getContext("2d");
+		var num_part = 50;
+		var dsize = 10;
+		var spacing = can.width/num_part;
+		var size = 600;
+		waves = []
+		time = 0
+		var pop = []
+		dolph = {x:0, y:300, echo:60, size: 10}
+
+		dctx.fillStyle = "blue";
+		dctx.fillRect(0,300,dsize,dsize);
+		for(var i = 0; i < num_part; i++){
+			for(var j = 0; j < num_part; j ++){
+				var particle = {x : i*spacing, y: j*spacing, interval : 0}
+				waves.push(particle)
+				seactx.fillRect(particle.x,particle.y,1,1);
+			}
+		}
+
+		var fishNum = Math.floor((Math.random() * 10) + 1);
+		var fishArr = []
+		for(var f = 0; f < fishNum; f++){
+			var xf = Math.floor((Math.random() * size) + 1)
+			var yf = Math.floor((Math.random() * size) + 1)
+
+			var xv = Math.floor((Math.random() * 3) + 1) - 1;
+			var yv = Math.floor((Math.random() * 3) + 1) - 1;
+			var fish = {x: xf, y:yf, vx: xv, vy: yv}
+			fishArr.push(fish)
+			mctx.fillRect(xf,yf,5,5);
+		}
+
+		var xf = Math.floor((Math.random() * size) + 1)
+		var yf = Math.floor((Math.random() * size) + 1)
+
+		var xv = Math.floor((Math.random() * 5) + 1) - 5;
+		var yv = Math.floor((Math.random() * 5) + 1) - 5;
+		var d = {x: xf, y:yf, vx: xv, vy: yv, size: 10, echo: 60}
+		var currFriend = d;
+		pop.push(d)
+		pctx.fillStyle = "yellow"//#00001a";
+		pctx.fillRect(xf, yf, 10,10);
+		function draw(callback){
+			time += 1
+			for(var i = 0; i< waves.length; i++){
+				waves[i].interval = Math.sin(time) 
+			}
+			for(var f = 0; f < fishArr.length; f++){
+				fishArr[f].x += fishArr[f].vx * 5;
+				fishArr[f].y += fishArr[f].vy * 5;
+			}
+			if(currFriend != null){
+				currFriend.x += currFriend.vx * 10;
+				currFriend.y += currFriend.vy * 10;
+			}
+			
+			callback()
+			
+		}
+		var ambientLight = .05;
+		var intensity = 1;
+
+
+		var radius = 60;
+		var amb = 'rgba(0,0,0,' + (1-ambientLight) + ')';
+
+		function red(){
+			seactx.clearRect(0,0,can.width,can.height);
+			mctx.clearRect(0,0,size, size);
+			var ripple = 15;
+			for(var i = 0; i< waves.length; i++){
+				if(waves[i].x + ripple > dolph.x && waves[i].x - ripple < dolph.x
+					&& waves[i].y + ripple > dolph.y && waves[i].y - ripple < dolph.y){
+					seactx.fillRect(waves[i].x+ waves[i].interval*8,waves[i].y + waves[i].interval,1,1);
+				} else{
+					seactx.fillRect(waves[i].x,waves[i].y + waves[i].interval,1,1);
+				}
+			}
+			for(var i = 0; i < fishArr.length; i++){
+				mctx.fillRect(fishArr[i].x, fishArr[i].y, 5,5);
+				if(fishArr[i].x > 590){
+					fishArr[i].vx = fishArr[i].vx * -1
+				}
+				if(fishArr[i].x < 10){
+					fishArr[i].vx = fishArr[i].vx * -1
+				}
+				if(fishArr[i].y > 590){
+					fishArr[i].vy = fishArr[i].vy * -1
+				}
+				if(fishArr[i].y < 10){
+					fishArr[i].vy = fishArr[i].vy * -1
+				}
+			}
+			pctx.clearRect(0,0,600,600);
+			pctx.fillStyle = "yellow"//"#00001a"
+			if(currFriend != null){
+				pctx.fillRect(currFriend.x, currFriend.y, 10,10);
+				
+				if(currFriend.x > 590){
+					currFriend.vx = currFriend.vx * -1
+				}
+				if(currFriend.x < 10){
+					currFriend.vx = currFriend.vx * -1
+				}
+				if(currFriend.y > 590){
+					currFriend.vy = currFriend.vy * -1
+				}
+				if(currFriend.y < 10){
+					currFriend.vy = currFriend.vy * -1
+				}
+			}
+		}
+		var echogrow = 0;
+		var echoX = 100000;
+		var echoY = 100000;
+		document.addEventListener("keypress", keyHandler)
+		function keyHandler(e){
+d
+			if (e.which == "119"){
+				e.preventDefault();
+				dctx.clearRect(0,0,dolphin.width, dolphin.height);
+				if(dolph.y > 10){
+					dolph.y -= 10;
+				}
+				dctx.fillRect(dolph.x, dolph.y, dolph.size, dolph.size);
+				for(var i = 1; i <= friends.length; i ++){
+
+					dctx.fillRect(dolph.x-(10*i), dolph.y -(10*i), dolph.size, dolph.size);
+				}
+			}
+			if (e.which == "100"){
+				e.preventDefault();
+				dctx.clearRect(0,0,dolphin.width, dolphin.height);
+				if(dolph.x < 590){
+					dolph.x += 10;
+				}
+				dctx.fillRect(dolph.x, dolph.y, dolph.size, dolph.size);
+				for(var i = 1; i <=friends.length; i ++){
+					dctx.fillRect(dolph.x-(10*i), dolph.y -(10*i), dolph.size, dolph.size);
+				}
+			}
+			if (e.which == "115"){
+				e.preventDefault();
+				dctx.clearRect(0,0,dolphin.width, dolphin.height);
+				if(dolph.y < 590){
+					dolph.y += 10;
+				}
+				dctx.fillRect(dolph.x, dolph.y, dolph.size, dolph.size);
+				for(var i = 1; i <= friends.length; i ++){
+					dctx.fillRect(dolph.x-(10*i), dolph.y -(10*i), dolph.size, dolph.size);
+				}
+			}
+			if (e.which == "97"){
+				e.preventDefault();
+				dctx.clearRect(0,0,dolphin.width, dolphin.height);
+				if(dolph.x > 10){
+					dolph.x -= 10;
+				}
+				dctx.fillRect(dolph.x, dolph.y, dolph.size, dolph.size);
+				for(var i = 1; i <= friends.length; i ++){
+					dctx.fillRect(dolph.x-(10*i), dolph.y -(10*i), dolph.size, dolph.size);
+				}
+			}
+			if (e.which == "101"){
+				echoX = dolph.x;
+				echoY = dolph.y;
+				echogrow = setInterval(ech, 50, dolph.x, dolph.y);
+		
+			}
+		}
+		var isEchoing = false
+		var dra = setInterval(draw, 500,red)
+		ectx.fillRect(0,0,600,600);
+		//console.log(ectx.globalCompositeOperation)
+		var s = 0;
+		function ech(x, y){
+			if(s < dolph.echo){
+				//ectx.clearRect(0,0,ec.width, ec.height);
+				//ectx.beginPath();
+				//ectx.arc(x, y, s, 0, 2 * Math.PI, false);
+				ectx.clearRect(0,0,600,600)
+				s+=10
+				isEchoing = true
+				//console.log(s);
+				var g = ectx.createRadialGradient(x, y, 0, x, y, s);
+				g.addColorStop(1, 'rgba(0,0,0,' + (1-intensity) + ')');
+				g.addColorStop(0, amb);
+				ectx.fillStyle = g;
+				
+				ectx.fillRect(x-s, y-s, 600+s, 600+s);
+				ectx.fillStyle = amb;
+				ectx.globalCompositeOperation = 'xor';
+				ectx.fillRect(0,0,600,600);
+
+			} else {
+				radius = dolph.echo
+				ectx.clearRect(0,0,600,600)
+				var g = ectx.createRadialGradient(x, y, 0, x, y, radius);
+				g.addColorStop(1, 'rgba(0,0,0,' + (1-intensity) + ')');
+				g.addColorStop(0, amb);
+				ectx.fillStyle = g;
+				ectx.fillRect(x-radius, y-radius, 600+radius, 600+radius);
+				ectx.fillStyle = amb;
+				ectx.globalCompositeOperation = 'xor';
+				ectx.fillRect(0,0,600,600);
+				s = 0;
+				clearInterval(echogrow);
+				isEchoing = false
+			}
+		}
+		var s = 0
+		var count = 0
+		var x = -1000
+		var y = -1000
+		var targetX = -10000
+		var targetY = -10000
+		function dolphEcho(comm){
+			count +=1
+			
+			if(count < comm){
+				return;
+			}
+			pectx.clearRect(0,0,600,600)
+			if(currFriend != null){
+				var target = currFriend
+				var c = 0
+				 
+				if(target == null){
+
+				}
+				else if(x == -1000 || y == -1000){
+					x = target.x
+					y = target.y
+					targetX = x
+					targetY = y
+				}
+				if(60> s){
+					//console.log(s)
+					var grd = pectx.createRadialGradient(x, y, 0,x, y, s);
+					grd.addColorStop(0, "white");
+					grd.addColorStop(1,"rgba(0,0,0,0)");
+					pectx.fillStyle = grd 
+					pectx.fillRect(x - s, y - s, 200-s, 200+s);
+					s+=10;
+				} else {
+					pectx.clearRect(0,0,600,600)
+					targetX = -10000 
+					targetY = -10000
+					s = 0
+					count = 0
+					x = -1000
+					y = -1000
+					clearInterval(ecint)
+					var cot = Math.floor(Math.random() * (50 - 40)) + 40;
+					ecint = setInterval(dolphEcho, 250, cot)
+				}
+			}
+
+		}
+		var turnoff = 0
+		var wait = Math.floor(Math.random() * (20 - 10)) + 10;
+		var ecint = setInterval(dolphEcho, 250, wait)
+		var friends = []
+		var pInt = 0
+		function checkForClose(){
+			
+			if(Math.abs(echoX - targetX) <= dolph.echo+30 && 
+				Math.abs(echoX - targetX) >= 0){
+				if(Math.abs(echoY - targetY) <= dolph.echo+30 &&
+					Math.abs(echoY - targetY) >= 0){
+					clearInterval(dra)
+					console.log(pop)
+					var d = currFriend
+					turnoff = 1
+					currFriend = null
+					friends.push(d)
+					echoX = 100000;
+					echoY = 100000;
+					pctx.clearRect(0,0,600,600)
+					clearInterval(close)
+					//var com = Math.floor(Math.random() * (60 - 5)) + 20;
+					pInt = setInterval(pause, 500, 20)
+					dolph.echo += 20;
+					dra = setInterval(draw, 500, red)
+				}
+			}
+		
+		}
+		var pCount = 0
+		var health = 0
+		function pause(com){		
+			pCount ++;
+			if(pCount > com){
+				pCount = 0
+				clearInterval(pInt)
+				var d = {x: xf, y:yf, vx: xv, vy: yv, size: 10, echo: 60}
+				currFriend = d
+				close = setInterval(checkForClose, 500)
+				var pauseE = Math.floor(Math.random() * (50 - 10)) + 10;
+				echoX = 100000;
+					echoY = 100000;
+				ecint = setInterval(dolphEcho, 250, pauseE)
+			}
+		}
+		var close = setInterval(checkForClose, 500)
+		
+		bctx.strokeStyle = "red"
+		bctx.lineWidth = 5
+		bctx.shadowColor = "white"
+		bctx.shadowBlur = 50
+		var lightX = Math.floor(Math.random()*(400-200)) + 200
+		var lightY = 0
+		var lightCounter = 0
+		var pLInt = null
+		var lightArr = []
+		var hit = false
+		function callBackLightning(){
+			lightCounter += 1
+			bctx.beginPath()
+			bctx.moveTo(lightX, lightY)
+			lightX = Math.floor(Math.random()*((lightX+50) - (lightX-50))) + (lightX-50)
+			lightY = lightY + Math.floor(Math.random()*(100 - 20) + 20)		
+			lightArr.push([lightX, lightY])
+			bctx.lineTo(lightX,lightY)
+			bctx.stroke();
+			bctx.closePath();
+			
+			for(var i = 0; i<lightArr.length; i++){
+				var lx = lightArr[i][0]
+				var ly = lightArr[i][1]
+
+				if(Math.abs(dolph.x - lx) < dolph.echo){
+					if(Math.abs(dolph.y - ly) < dolph.echo){
+						hit = true
+						if(friends.length > 0){
+							friends.pop()
+							if(dolph.echo > 20){
+								dolph.echo -=20
+							}
+						}
+						else{
+							if(dolph.echo > 40){
+								dolph.echo -= 40
+							}
+							else{
+								dolph.echo = 0
+							}
+						}
+						break;
+					}
+				}
+			}
+			
+			if(lightCounter > 7){
+				clearInterval(lightInt)
+				
+				lightCounter = 0
+				lightX = Math.floor(Math.random()*(500-100)) + 100
+				lightY = 0
+				var pauser = Math.floor(Math.random()*(20-5)) + 5
+				pLInt = setInterval(pauseLightning, 1000, pauser)
+			}
+		}
+		//callBackLightning()
+		lightInt = setInterval(callBackLightning, 50)
+		var pLCounter = 0
+		function pauseLightning(stop){
+			pLCounter += 1
+			if(pLCounter == 5){
+				bctx.clearRect(0,0,600,600);
+			}
+			for(var i = 0; i<lightArr.length; i++){
+				var lx = lightArr[i][0]
+				var ly = lightArr[i][1]
+
+				if(Math.abs(dolph.x - lx) < dolph.echo){
+					if(Math.abs(dolph.y - ly) < dolph.echo){
+						hit = true
+						if(friends.length > 0){
+							friends.pop()
+							if(dolph.echo > 20){
+								dolph.echo -=20
+							}
+						}
+						else{
+							if(dolph.echo > 40){
+								dolph.echo -= 40
+							}
+							else{
+								dolph.echo = 0
+							}
+						}
+						break;
+					}
+				}
+			}
+			if (pLCounter == stop){
+				pLCounter = 0
+				lightArr = []
+				lightInt = setInterval(callBackLightning, 50)
+				clearInterval(pLInt)
+			}
+		}
+		
+	</script>
+</body>
+</html>
