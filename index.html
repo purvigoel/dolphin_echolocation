@@ -91,7 +91,7 @@
 		var d = {x: xf, y:yf, vx: xv, vy: yv, size: 10, echo: 60}
 		var currFriend = d;
 		pop.push(d)
-		pctx.fillStyle = "yellow"//#00001a";
+		pctx.fillStyle = "black"//#00001a";
 		pctx.fillRect(xf, yf, 10,10);
 		function draw(callback){
 			time += 1
@@ -145,7 +145,7 @@
 				}
 			}
 			pctx.clearRect(0,0,600,600);
-			pctx.fillStyle = "yellow"//"#00001a"
+			pctx.fillStyle = "black"//"#00001a"
 			if(currFriend != null){
 				pctx.fillRect(currFriend.x, currFriend.y, 10,10);
 				
